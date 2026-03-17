@@ -86,6 +86,7 @@ struct SourceRegister {
             return value - 0x10;
         else if (GetRegisterType() == RegisterType::FloatUniform)
             return value - 0x20;
+        return 0;
     }
 
     static const SourceRegister FromTypeAndIndex(RegisterType type, int index) {
@@ -475,26 +476,20 @@ private:
     uint32_t value;
 };
 
-} // namespace nihstro
+template<>
+struct BitFieldStorageType<SourceRegister> {
+    using type = uint32_t;
+};
 
-namespace std {
-    template<>
-    struct make_unsigned<nihstro::SourceRegister> {
-        using type = nihstro::SourceRegister;
-    };
+template<>
+struct BitFieldStorageType<DestRegister> {
+    using type = uint32_t;
+};
 
-    template<>
-    struct make_unsigned<nihstro::DestRegister> {
-        using type = nihstro::DestRegister;
-    };
-
-    template<>
-    struct make_unsigned<nihstro::OpCode> {
-        using type = nihstro::OpCode;
-    };
-}
-
-namespace nihstro {
+template<>
+struct BitFieldStorageType<OpCode> {
+    using type = uint32_t;
+};
 
 #pragma pack(1)
 union Instruction {
