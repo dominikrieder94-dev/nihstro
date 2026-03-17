@@ -39,6 +39,19 @@
 
 namespace nihstro {
 
+template<typename T, bool IsEnum = std::is_enum<T>::value>
+struct BitFieldStorageTypeImpl {
+    using type = T;
+};
+
+template<typename T>
+struct BitFieldStorageTypeImpl<T, true> {
+    using type = typename std::underlying_type<T>::type;
+};
+
+template<typename T>
+struct BitFieldStorageType : BitFieldStorageTypeImpl<T> {};
+
 /*
  * Abstract bitfield class
  *
@@ -182,9 +195,7 @@ private:
     // T is an enumeration. Note that T is wrapped within an enable_if in the
     // former case to workaround compile errors which arise when using
     // std::underlying_type<T>::type directly.
-    typedef typename std::conditional < std::is_enum<T>::value,
-        std::underlying_type<T>,
-        std::enable_if < true, T >> ::type::type StorageType;
+    typedef typename BitFieldStorageType<T>::type StorageType;
 
     // Unsigned version of StorageType
     typedef typename std::make_unsigned<StorageType>::type StorageTypeU;
